@@ -1,61 +1,21 @@
-# SAVE LIFE — Green Generation
+# SAVE LIFE — Forest Guardian (Immersive 3D Edition)
 
-**Interactive environmental education prototype built with Astro and original procedural 3D scenes.**
+An educational 3D simulation built with Astro and an original low-poly WebGL2 renderer (with Canvas 2D fallback).
 
-**Live:** https://savelife-zeta.vercel.app  
-**GitHub:** https://github.com/Darren0099/savelife
-
-## About
-Five educational worlds introduce forest-fire prevention and haze safety, flood awareness, waste reduction, climate literacy, and biodiversity. Forest Guardian contains three playable missions that teach the learner to read, decide and reflect.
-
-This is a classroom-oriented concept prototype, **not** a live environmental-monitoring service or an official government application.
-
-## Features
-- Lightweight procedural low-poly islands, interactive rotation and zoom
-- WebGL2 rendering with Canvas 2D fallback
-- Five worlds and branching educational missions
-- Explanations for right and wrong answers, XP rewards
-- Progress saved in the browser via localStorage
-- Mobile-responsive design and reduced-motion CSS
-- Original 3D model exports under `assets-3d/*.glb`
+## Controls
+- Drag the forest to rotate the camera
+- Scroll or use + / − controls to zoom, limited to keep the island in view
+- Read the case in the bottom dock and select a response
+- Watch the forest change: simulated fire, smoke, responding fire crew and water spray
+- Earn XP for safe decisions; browser localStorage records completion
 
 ## Getting started
-Requires Node.js 20 or later.
-
 ```bash
-git clone https://github.com/Darren0099/savelife.git
-cd savelife
 npm install
 npm run dev
 ```
 
-Open http://localhost:4321.
+## Responsible learning
+This is an illustrative simulation, not live wildfire data or operational emergency guidance. The correct response for minors and civilians is to avoid the fire, reduce smoke exposure, and contact qualified responders. Forest fires, including peat fires, can require specialist methods; a water spray effect in this prototype is a simplified learning visual.
 
-```bash
-npm run build
-npm run preview
-```
-
-## Source structure
-- `src/pages/index.astro` — Astro page with self-contained HTML, styles, procedural world renderer and client-side gameplay
-- `public/offline-all-in-one.html` — standalone demo without Astro build, available at `/offline-all-in-one.html`
-- `assets-3d/*.glb` — original exported island models
-- `assets-3d/build_models.py` — deterministic asset generator
-- `.github/workflows/generate-3d.yml` — regenerates and commits the GLB exports
-- `docs/PRODUCT_BRIEF.md` — audience, research hypothesis, MVP scope and planned evaluation
-- `docs/SOURCES.md` — reference sources and responsible data use
-
-## Rebuild 3D assets (optional)
-```bash
-python -m pip install numpy trimesh
-python assets-3d/build_models.py
-```
-
-The live website currently renders the procedural scene; the GLB exports are reusable 3D assets for subsequent versions.
-
-## Safety and limitations
-- The health/index indicators and game states are **simulated**, not live measurements.
-- A satellite hotspot is not necessarily a confirmed fire.
-- This is not an emergency warning or evacuation system. Follow local authorities in an actual emergency.
-- No learner account or sensitive personal data is collected for the MVP.
-- Before use in schools, validate content with educators, test with students, and review WCAG 2.2 AA usability.
+Materials references: BMKG, NASA FIRMS, WHO, BMKG SPARTAN. Consult the in-app links for primary source materials. The 3D scene is generated in code and requires no third-party model assets.

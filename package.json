@@ -1,17 +1,1 @@
-{
-  "name": "save-life-green-generation",
-  "version": "0.1.0",
-  "private": true,
-  "type": "module",
-  "scripts": {
-    "dev": "astro dev --host",
-    "build": "astro build",
-    "preview": "astro preview --host"
-  },
-  "dependencies": {
-    "astro": "^5.0.0"
-  },
-  "engines": {
-    "node": ">=20.0.0"
-  }
-}
+{"name":"savelife-forest-guardian","version":"0.2.0","private":true,"type":"module","scripts":{"dev":"astro dev --host 0.0.0.0","build":"astro build","preview":"astro preview --host 0.0.0.0"},"dependencies":{"astro":"^5.0.0"},"engines":{"node":">=20"}}
