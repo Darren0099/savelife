@@ -1,57 +1,61 @@
 # SAVE LIFE — Green Generation
 
-**Astro-based 3D gamified environmental education prototype.**
+**Interactive environmental education prototype built with Astro and original procedural 3D scenes.**
 
-Original procedural low-poly models are rendered with a lightweight custom WebGL2 renderer. The app also includes playable branch-choice lessons and persistent progress via `localStorage`.
+**Live:** https://savelife-zeta.vercel.app  
+**GitHub:** https://github.com/Darren0099/savelife
 
-## Run with Astro
+## About
+Five educational worlds introduce forest-fire prevention and haze safety, flood awareness, waste reduction, climate literacy, and biodiversity. Forest Guardian contains three playable missions that teach the learner to read, decide and reflect.
+
+This is a classroom-oriented concept prototype, **not** a live environmental-monitoring service or an official government application.
+
+## Features
+- Lightweight procedural low-poly islands, interactive rotation and zoom
+- WebGL2 rendering with Canvas 2D fallback
+- Five worlds and branching educational missions
+- Explanations for right and wrong answers, XP rewards
+- Progress saved in the browser via localStorage
+- Mobile-responsive design and reduced-motion CSS
+- Original 3D model exports under `assets-3d/*.glb`
+
+## Getting started
+Requires Node.js 20 or later.
 
 ```bash
+git clone https://github.com/Darren0099/savelife.git
+cd savelife
 npm install
 npm run dev
 ```
 
-Open the address printed by Astro (normally http://localhost:4321).
-
-## Standalone preview, no npm required
-
-The `demo/` directory is fully self-contained. From project root:
+Open http://localhost:4321.
 
 ```bash
-python -m http.server 8000 --directory demo
+npm run build
+npm run preview
 ```
 
-Open http://localhost:8000. Opening the HTML directly with `file://` is not recommended because browsers restrict ES module imports.
+## Source structure
+- `src/pages/index.astro` — Astro page with self-contained HTML, styles, procedural world renderer and client-side gameplay
+- `public/offline-all-in-one.html` — standalone demo without Astro build, available at `/offline-all-in-one.html`
+- `assets-3d/*.glb` — original exported island models
+- `assets-3d/build_models.py` — deterministic asset generator
+- `.github/workflows/generate-3d.yml` — regenerates and commits the GLB exports
+- `docs/PRODUCT_BRIEF.md` — audience, research hypothesis, MVP scope and planned evaluation
+- `docs/SOURCES.md` — reference sources and responsible data use
 
-## Interactions
+## Rebuild 3D assets (optional)
+```bash
+python -m pip install numpy trimesh
+python assets-3d/build_models.py
+```
 
-- Drag the forest with the mouse or trackpad to orbit the actual 3D geometry.
-- Zoom with the scroll wheel or plus/minus buttons.
-- Switch 5 worlds through world cards; all worlds render distinct original geometry.
-- Complete three Forest Guardian missions and one mini lesson in each remaining world.
-- Correct answers grant XP, update local storage and change world-health/progress UI.
-- Open each original source reference from within a lesson.
+The live website currently renders the procedural scene; the GLB exports are reusable 3D assets for subsequent versions.
 
-## Architecture
-
-- `src/pages/index.astro`: Astro-rendered page and semantic layout.
-- `public/_preview.html`: optional direct static preview.
-- `public/style.css`: layout and effects.
-- `public/app.js`: missions, world switching, state, gamification.
-- `public/scene3d.js`: procedural terrain, trees, low-poly islands and custom WebGL renderer.
-- `demo/`: standalone development copy.
-- `assets-3d/`: exported example GLB, usable in future 3D engines.
-
-The Astro page directly renders the HTML and client-side app module. Future production refactor: move the large template into smaller Astro components and the WebGL layer into a dedicated island.
-
-## Sources and safety
-
-Education-only prototype. The forest-health index is illustrative, not live environmental telemetry, and is not validated for emergencies. The content links to BMKG, BMKG SPARTAN, NASA FIRMS, WHO, BNPB, UNESCO and UNEP. Do not use as a real-time warning or emergency response tool. NASA/VIIRS hotspots do not necessarily represent confirmed fires. Avoid user location/health data collection, especially for minors.
-
-## Proposed next steps
-
-1. Usability and learning efficacy pilot with educators and students.
-2. Professional review of safety scripts.
-3. Formal curriculum, content versioning and citation management.
-4. WCAG 2.2 AA manual audit + keyboard screen-reader testing.
-5. Production content architecture and optional backend for teacher accounts.
+## Safety and limitations
+- The health/index indicators and game states are **simulated**, not live measurements.
+- A satellite hotspot is not necessarily a confirmed fire.
+- This is not an emergency warning or evacuation system. Follow local authorities in an actual emergency.
+- No learner account or sensitive personal data is collected for the MVP.
+- Before use in schools, validate content with educators, test with students, and review WCAG 2.2 AA usability.
