@@ -1,0 +1,31 @@
+name: Generate original 3D assets
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'assets-3d/build_models.py'
+      - '.github/workflows/generate-3d.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  build-assets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: '3.12'
+      - name: Build procedural low-poly GLB models
+        run: |
+          python -m pip install --disable-pip-version-check "numpy==2.2.6" "trimesh==4.6.9"
+          python assets-3d/build_models.py
+      - name: Commit reproducible GLB assets
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets-3d/*_guardian_island.glb
+          if ! git diff --cached --quiet; then
+            git commit -m "build: generate original 3D island assets"
+            git push
+          fi
