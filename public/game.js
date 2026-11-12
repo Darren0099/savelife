@@ -28,6 +28,17 @@ if(!Object.keys(saved).length)try{
 }catch{}
 const persist=()=>{try{localStorage.setItem(STORE,JSON.stringify(saved))}catch{}};
 let index=0,responded=false,timer=null;
+let dockExpanded=false;
+function setDockExpanded(expanded,focusToggle=false){
+ dockExpanded=expanded;
+ $('case-dock').classList.toggle('is-collapsed',!expanded);
+ $('case-dock').classList.toggle('is-expanded',expanded);
+ $('dock-detail').hidden=!expanded;
+ $('dock-toggle').setAttribute('aria-expanded',String(expanded));
+ $('dock-toggle-label').textContent=expanded?'Tutup panel':responded?'Lihat penjelasan':'Mulai simulasi';
+ renderer.setDockExpanded(expanded);
+ if(focusToggle)$('dock-toggle').focus({preventScroll:true});
+}
 const doneCount=()=>missions.filter((_,i)=>saved[i]===true).length;
 const xp=()=>missions.reduce((n,m,i)=>n+(saved[i]?m.xp:0),0);
 function announce(text,style=''){
@@ -37,6 +48,7 @@ function announce(text,style=''){
 function updateProgress(){
  const w=worlds.findIndex(x=>x.id===missions[index].world);
  $('xp-counter').textContent=xp()+' XP';$('progress-count').textContent=doneCount()+'/'+missions.length+' MISI SELESAI';
+ $('dock-summary-progress').textContent=doneCount()+' / '+missions.length+' MISI';
  $('top-progress').innerHTML=String(w+1).padStart(2,'0')+' <span>/ '+String(worlds.length).padStart(2,'0')+'</span>';
  document.querySelectorAll('.world-tab').forEach(btn=>{
   const active=btn.dataset.world===missions[index].world;
@@ -52,6 +64,10 @@ function loadMission(n){
  $('world-title').innerHTML=world.title+'<span>.</span>';
  $('world-description').textContent=world.subtitle;
  $('map-label-text').textContent='DIORAMA '+String(worlds.indexOf(world)+1).padStart(2,'0')+' / '+world.map;
+ $('dock-eyebrow').textContent=String(worlds.indexOf(world)+1).padStart(2,'0')+' / '+world.label.toUpperCase()+' · CASE '+String(n+1).padStart(2,'0');
+ $('dock-summary-title').textContent=m.title;
+ $('dock-summary-description').textContent='Amati peta dan tentukan tindakan paling aman.';
+ $('dock-next').hidden=true;$('dock-retry').hidden=true;
  $('case-index').textContent='CASE '+String(n+1).padStart(2,'0');
  $('case-topic').textContent=m.tag;$('case-kicker').textContent='SIMULASI / '+m.step;
  $('case-title').textContent=m.title;$('case-detail').textContent=m.detail;$('case-question').textContent=m.question;
@@ -65,6 +81,7 @@ function loadMission(n){
  });
  $('case-feedback').hidden=true;$('case-feedback').textContent='';$('case-feedback').classList.remove('wrong');
  $('next-case').hidden=true;$('retry-case').hidden=true;
+ setDockExpanded(false);
  renderer.setScenario(m.world,'idle',m.stage);
  announce(m.scene,m.stage>0?'alert':'');updateProgress();
 }
@@ -73,15 +90,19 @@ function decide(i){
  const m=missions[index],correct=i===m.correct;
  document.querySelectorAll('.choice-btn').forEach((b,j)=>{b.disabled=true;if(j===i)b.classList.add(correct?'selected-correct':'selected-wrong')});
  renderer.setScenario(m.world,correct?'safe':'unsafe',m.stage);
- announce(correct?'Jalur respons aman ditampilkan pada peta 3D.':'Risiko meningkat. Amati perubahan peta 3D.',correct?'safe':'alert');
+ // The choice returns the user to the unobstructed 3D world automatically.
+ setDockExpanded(false,true);
+ $('dock-summary-description').textContent=correct?'Respons aman diterapkan. Amati efeknya di dunia 3D.':'Situasi berisiko. Amati akibat pilihanmu di peta.';
+ announce(correct?'Pilihan aman. Amati perubahan di lingkungan 3D.':'Risiko meningkat. Amati perubahan peta 3D.',correct?'safe':'alert');
  timer=setTimeout(()=>{
   const fb=$('case-feedback');fb.hidden=false;fb.classList.toggle('wrong',!correct);
   fb.textContent=correct?m.success:m.error;
   if(correct){
    saved[index]=true;persist();updateProgress();
    $('next-case').hidden=false;$('next-case').textContent=index===missions.length-1?'Jelajahi lagi ↺':'Lanjut simulasi →';
+   $('dock-next').hidden=false;$('dock-next').textContent=index===missions.length-1?'Mulai lagi ↺':'Misi berikutnya →';
    announce('Keputusan aman. '+m.tag.toLowerCase()+' selesai.','safe');
-  }else $('retry-case').hidden=false;
+  }else{$('retry-case').hidden=false;$('dock-retry').hidden=false;}
  },1700);
 }
 for(const w of worlds){
@@ -91,11 +112,16 @@ for(const w of worlds){
  btn.append(number,label);btn.addEventListener('click',()=>{const n=missions.findIndex(m=>m.world===w.id);loadMission(n)});
  $('world-tabs').append(btn);
 }
+$('dock-toggle').addEventListener('click',()=>setDockExpanded(!dockExpanded));
+$('dock-next').addEventListener('click',()=>loadMission((index+1)%missions.length));
+$('dock-retry').addEventListener('click',()=>loadMission(index));
 $('retry-case').addEventListener('click',()=>loadMission(index));
 $('next-case').addEventListener('click',()=>loadMission((index+1)%missions.length));
 $('reset-case').addEventListener('click',()=>loadMission(index));
 $('zoom-in').addEventListener('click',()=>renderer.zoom(-1));
 $('zoom-out').addEventListener('click',()=>renderer.zoom(1));
 $('reset-camera').addEventListener('click',()=>renderer.reset());
-window.addEventListener('keydown',e=>{if(e.key==='Escape'&&responded)loadMission(index)});
+window.addEventListener('keydown',e=>{
+ if(e.key==='Escape'&&dockExpanded){setDockExpanded(false,true);e.preventDefault();}
+});
 loadMission(0);

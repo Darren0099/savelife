@@ -34,15 +34,32 @@ const title = 'SaveLife — Jelajahi & Hadapi Bencana dalam 3D';
         <p id="world-description">Belajar membaca risiko kebakaran dan membuat keputusan lebih aman.</p>
       </div>
       <nav class="world-tabs" id="world-tabs" aria-label="Pilih jenis bencana"></nav>
-      <div class="map-label"><span class="map-label-dot"></span><span id="map-label-text">DIORAMA 01 / HUTAN GAMBUT</span><span class="map-label-separator"></span><span>3D INTERAKTIF</span></div>
-      <div class="scene-status" id="scene-status" role="status" aria-live="polite"><span class="status-led"></span><span id="scene-status-text">Amati lingkungan, lalu pilih tindakan.</span></div>
+      <div class="map-label" aria-hidden="true"><span class="map-label-dot"></span><span id="map-label-text">DIORAMA 01 / HUTAN GAMBUT</span><span class="map-label-separator"></span><span>3D INTERAKTIF</span></div>
+      <div class="scene-status" id="scene-status" role="status" aria-live="polite" aria-atomic="true"><span class="status-led"></span><span id="scene-status-text">Amati lingkungan, lalu pilih tindakan.</span></div>
       <div class="view-controls" role="group" aria-label="Kontrol kamera">
         <button type="button" id="zoom-in" aria-label="Perbesar peta" title="Perbesar"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
         <button type="button" id="zoom-out" aria-label="Perkecil peta" title="Perkecil"><svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg></button>
         <button type="button" id="reset-camera" aria-label="Reset kamera" title="Reset kamera"><svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 1-3-6M20 4v6h-6"/></svg></button>
       </div>
       <p class="map-hint">DRAG TO ROTATE <span>/</span> SCROLL TO ZOOM</p>
-      <section class="case-dock" aria-label="Tantangan keputusan berbasis situasi">
+      <section class="case-dock is-collapsed" id="case-dock" aria-label="Tantangan keputusan berbasis situasi">
+        <div class="dock-collapsed">
+          <div class="dock-summary">
+            <span class="dock-summary-eyebrow" id="dock-eyebrow">01 / KARHUTLA · CASE 01</span>
+            <h2 id="dock-summary-title">Hotspot belum tentu api.</h2>
+            <span class="dock-summary-description" id="dock-summary-description">Amati lingkungan, lalu ambil keputusan.</span>
+          </div>
+          <div class="dock-summary-side">
+            <span class="dock-summary-progress" id="dock-summary-progress">0 / 7 MISI</span>
+            <button type="button" id="dock-next" class="dock-quick-action" hidden>Lanjut kasus <span aria-hidden="true">→</span></button>
+            <button type="button" id="dock-retry" class="dock-quick-action" hidden>Coba lagi <span aria-hidden="true">↻</span></button>
+            <button type="button" id="dock-toggle" class="dock-toggle" aria-expanded="false" aria-controls="dock-detail">
+              <span id="dock-toggle-label">Mulai simulasi</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg>
+            </button>
+          </div>
+        </div>
+        <div id="dock-detail" class="dock-detail" hidden>
         <div class="case-track">
           <span id="case-index">CASE 01</span><span class="case-track-line"></span><span id="case-topic">OBSERVASI</span>
           <span class="case-track-right" id="progress-count">0/7 MISI SELESAI</span>
@@ -64,6 +81,7 @@ const title = 'SaveLife — Jelajahi & Hadapi Bencana dalam 3D';
               <button type="button" id="retry-case" class="retry-btn" hidden>Coba lagi <span aria-hidden="true">↻</span></button>
             </div>
           </div>
+        </div>
         </div>
       </section>
     </section>

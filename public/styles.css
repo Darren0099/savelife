@@ -131,3 +131,169 @@ button[hidden],div[hidden],section[hidden]{display:none!important}
  .map-label,.scene-status{bottom:210px}
 }
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation-duration:.001ms!important;transition-duration:.001ms!important;scroll-behavior:auto!important}}
+
+
+/* =========================================================
+   3D-FIRST FOCUS MODE — visual UI stays out of the world
+   ========================================================= */
+.world-nav{display:none}
+.scene-heading{
+  top:106px;left:clamp(20px,3.7vw,64px);
+  width:min(280px,27vw);max-width:280px;
+  text-shadow:0 1px 10px #f8fcf7ab;
+}
+.scene-eyebrow{font-size:9px;letter-spacing:.10em;gap:8px}
+.scene-heading h1{
+  font-size:clamp(23px,2vw,32px);line-height:1.08;
+  letter-spacing:-.06em;margin:9px 0 7px
+}
+.scene-heading p{font-size:11px;line-height:1.45;max-width:255px}
+.world-tabs{
+ top:96px;right:clamp(18px,3.7vw,64px);
+ border-radius:15px;padding:4px;gap:2px;
+ box-shadow:0 10px 30px #365e4812
+}
+.world-tab{padding:10px 11px;font-size:10px;border-radius:11px}
+.world-tab-number{font-size:8px}
+.view-controls{
+ right:clamp(14px,3vw,47px);top:50%;
+ border-radius:14px;padding:5px;gap:1px;
+ background:#ffffffe0;box-shadow:0 8px 26px #40654a12
+}
+.view-controls button{width:34px;height:35px}
+.map-label,.map-hint{display:none!important}
+/* Preserve accessible announcements without drawing a toast over the map. */
+.scene-status{
+ position:absolute!important;width:1px!important;height:1px!important;
+ padding:0!important;margin:-1px!important;border:0!important;
+ overflow:hidden!important;clip:rect(0,0,0,0)!important;
+ white-space:nowrap!important;clip-path:inset(50%)!important;
+}
+.case-dock{
+ width:min(1060px,calc(100% - 50px));
+ bottom:max(20px,env(safe-area-inset-bottom));
+ padding:13px 21px 16px;border-radius:21px;
+ background:#fffffff0;
+ box-shadow:0 18px 55px #31533e22,0 1px 7px #31533e0d;
+ transition:width .22s ease,padding .22s ease,box-shadow .22s ease;
+}
+.case-dock.is-collapsed{
+ width:min(742px,calc(100% - 48px));
+ padding:12px 14px 12px 20px;
+ border:1px solid #ffffffdd;border-radius:20px;
+ box-shadow:0 12px 43px #31533e20;
+}
+.dock-collapsed{
+ display:flex;align-items:center;justify-content:space-between;
+ gap:18px;min-height:51px
+}
+.dock-summary{flex:1;min-width:0}
+.dock-summary-eyebrow{
+ display:block;font-size:9px;letter-spacing:.10em;
+ color:#69a17b;font-weight:800;line-height:1.2
+}
+.dock-summary h2{
+ margin:4px 0 3px;color:#254d3a;letter-spacing:-.045em;
+ font:800 clamp(14px,1.1vw,18px)/1.23 'Plus Jakarta Sans',sans-serif;
+ overflow:hidden;text-overflow:ellipsis;white-space:nowrap
+}
+.dock-summary-description{
+ display:block;color:#879a8b;font-size:10px;
+ overflow:hidden;text-overflow:ellipsis;white-space:nowrap
+}
+.dock-summary-side{
+ display:flex;gap:9px;align-items:center;justify-content:flex-end;flex:none
+}
+.dock-summary-progress{
+ color:#98ab9d;font-size:9px;font-weight:800;letter-spacing:.07em;
+ white-space:nowrap;margin-right:4px
+}
+.dock-toggle,.dock-quick-action{
+ border:0;display:inline-flex;justify-content:center;align-items:center;
+ gap:9px;border-radius:12px;white-space:nowrap;
+ padding:12px 15px;font-size:11px;font-weight:800;
+ transition:transform .16s ease,background .16s ease;
+}
+.dock-toggle{color:#fff;background:#245b41}
+.dock-toggle:hover{background:#307351;transform:translateY(-1px)}
+.dock-toggle svg{width:15px;height:15px;transform:rotate(-90deg);transition:transform .2s}
+.is-expanded .dock-toggle svg{transform:rotate(180deg)}
+.dock-quick-action{background:#e7f5e8;color:#28714c}
+.dock-quick-action:hover{background:#d7f0db}
+.dock-detail{border-top:1px solid #e9efe7;margin-top:12px}
+.dock-detail[hidden]{display:none!important}
+.case-dock.is-expanded{
+ max-height:min(47dvh,395px);overflow-y:auto;
+ scrollbar-width:thin;scrollbar-color:#c7dbc8 transparent
+}
+.case-dock.is-expanded .dock-summary-description{display:none}
+.case-dock.is-expanded .case-track{padding-top:12px}
+.case-track{padding-bottom:8px}
+.case-content{padding-top:10px}
+.case-intro h2{font-size:clamp(17px,1.55vw,23px)}
+.choices{gap:7px}
+.choice-btn{min-height:49px}
+.case-footer{margin-top:6px}
+@media(max-width:1000px){
+ .scene-heading{width:min(250px,28vw);top:97px}
+ .world-tabs{top:89px;max-width:65vw}
+ .world-tab{padding:10px 9px}
+ .case-dock.is-expanded{max-height:48dvh}
+}
+@media(max-width:820px){
+ .topbar{padding:13px 16px}
+ .scene-heading{top:128px;left:18px;width:min(230px,51vw)}
+ .scene-heading h1{font-size:clamp(23px,4.5vw,31px)}
+ .scene-heading p{font-size:10px;line-height:1.37}
+ .scene-eyebrow{font-size:8px}
+ .world-tabs{
+  top:68px;left:12px;right:12px;
+  width:calc(100% - 24px);max-width:none;
+  justify-content:flex-start;overflow-x:auto
+ }
+ .world-tab{padding:9px 11px;flex:none}
+ .view-controls{top:47%;right:12px}
+ .case-dock,.case-dock.is-collapsed{
+  width:calc(100% - 20px);padding:11px 12px;
+  bottom:max(9px,env(safe-area-inset-bottom));
+  border-radius:16px
+ }
+ .case-dock.is-expanded{max-height:56dvh}
+ .dock-collapsed{gap:11px}
+ .dock-summary h2{font-size:15px}
+ .dock-summary-description{font-size:9px}
+ .dock-summary-progress{font-size:8px;margin-right:0}
+ .dock-toggle,.dock-quick-action{padding:10px 11px;font-size:10px;border-radius:10px}
+ .case-content{grid-template-columns:1fr;gap:12px}
+ .case-intro h2{font-size:18px}
+}
+@media(max-width:540px){
+ .scene-heading{top:121px;width:52vw}
+ .scene-heading h1{font-size:23px;max-width:205px}
+ .scene-heading p{font-size:9px;max-width:193px}
+ .world-tab{padding:9px 12px;font-size:10px}
+ .world-tab-number{font-size:8px}
+ .dock-summary-progress{display:none}
+ .dock-summary h2{font-size:14px}
+ .dock-summary-description{display:none}
+ .dock-summary-eyebrow{font-size:8px}
+ .dock-toggle,.dock-quick-action{font-size:9px;padding:10px 10px;gap:5px}
+ .dock-toggle svg{width:13px;height:13px}
+ .dock-summary-side{gap:5px}
+ .dock-collapsed{min-height:38px}
+ .case-dock.is-expanded{max-height:58dvh}
+ .case-dock.is-expanded .dock-summary h2{font-size:13px}
+ .case-dock.is-expanded .dock-toggle{padding:9px}
+ .case-dock.is-expanded .case-intro p{font-size:10px}
+}
+@media(max-width:370px){
+ .dock-summary h2{font-size:12px}
+ .dock-quick-action{padding:8px}
+ .scene-heading{top:120px}
+ .scene-heading h1{font-size:21px}
+}
+@media(max-height:640px) and (min-width:821px){
+ .scene-heading{top:88px}
+ .world-tabs{top:86px}
+ .case-dock.is-expanded{max-height:55dvh}
+}
