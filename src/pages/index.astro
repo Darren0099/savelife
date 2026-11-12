@@ -1,15 +1,14 @@
 ---
-// Save Life / Forest Guardian — immersive 3D decision-learning prototype.
-const pageTitle = 'Save Life — Forest Guardian | Simulasi 3D';
+const title = 'SaveLife — Jelajahi & Hadapi Bencana dalam 3D';
 ---
 <!doctype html>
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#eef3e8" />
-  <meta name="description" content="Simulasi lingkungan 3D interaktif: pelajari karhutla, lahan gambut, dan tindakan aman melalui cerita berbasis keputusan." />
-  <title>{pageTitle}</title>
+  <meta name="theme-color" content="#f1f4ea" />
+  <meta name="description" content="Simulasi 3D interaktif tentang kebakaran hutan, tsunami, banjir, gempa bumi dan tanah longsor. Amati situasi, pilih tindakan aman, lihat akibatnya secara langsung." />
+  <title>{title}</title>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -17,35 +16,58 @@ const pageTitle = 'Save Life — Forest Guardian | Simulasi 3D';
   <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
-  <div id="app" class="app-shell">
-    <section class="world-view" aria-label="Simulasi hutan tiga dimensi">
-      <canvas id="world-canvas" role="img" aria-label="Peta tiga dimensi hutan gambut isometrik. Animasi dan perubahan kondisi dijelaskan melalui teks status." tabindex="0"></canvas>
+  <main id="app" class="app-shell" data-world="forest">
+    <section class="world-view" aria-label="Peta simulasi bencana tiga dimensi">
+      <canvas id="world-canvas" role="img" tabindex="0" aria-label="Peta 3D ilustratif. Putar dengan mouse atau sentuhan dan amati perubahan setelah memilih tindakan."></canvas>
       <div class="world-vignette" aria-hidden="true"></div>
       <header class="topbar">
-        <a href="/" class="brand" aria-label="Save Life, kembali ke awal">
+        <a href="/" class="brand" aria-label="SaveLife, mulai dari awal">
           <span class="brand-icon" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none"><path d="M25 6C14 6 7 11 7 20c0 4 3 7 7 7 9 0 13-11 11-21Z" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M8 26c2-6 7-11 12-14" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></span>
-          <span class="brand-copy"><strong>SAVE LIFE<span class="brand-dot">.</span></strong><small>GREEN GENERATION</small></span>
+          <span class="brand-copy"><strong>save<span class="brand-dot">life.</span></strong><small>EXPLORE · LEARN · ACT</small></span>
         </a>
-        <div class="world-nav" aria-label="Alur misi"><span class="nav-kicker">FOREST GUARDIAN</span><span class="nav-progress" id="top-progress">01 <span>/ 03</span></span><span class="progress-dots" aria-hidden="true"><i class="current"></i><i></i><i></i></span></div>
-        <div class="header-right"><span class="xp-counter" id="xp-counter" aria-live="polite"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 2-9 11h7l-2 9 10-12h-7l1-8Z" fill="currentColor" /></svg> 0 XP</span><button type="button" class="light-btn replay-top" id="reset-case" aria-label="Ulangi simulasi saat ini" title="Ulangi kasus"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 11a8 8 0 1 1-3-6M20 4v6h-6"/></svg></button></div>
+        <div class="world-nav"><span class="nav-kicker">DISASTER LAB / 3D</span><span class="nav-progress" id="top-progress">01 <span>/ 05</span></span></div>
+        <div class="header-right"><span class="xp-counter" id="xp-counter" aria-label="Poin pembelajaran">0 XP</span><button type="button" class="light-btn" id="reset-case" aria-label="Ulangi situasi" title="Ulangi situasi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 1 1-3-6M20 4v6h-6"/></svg></button></div>
       </header>
-      <div class="map-label" aria-hidden="true"><span class="pulse-dot"></span><span id="map-label-text">PETA HUTAN · SIMULASI</span></div>
-      <div class="scene-status" id="scene-status" role="status" aria-live="polite"><span class="status-led"></span><span id="scene-status-text">Jelajahi hutan untuk memulai.</span></div>
-      <div class="view-controls" role="group" aria-label="Kontrol kamera 3D">
+      <div class="scene-heading" aria-live="polite">
+        <span class="scene-eyebrow"><span class="pulse-dot"></span> IMMERSIVE LEARNING / INDONESIA</span>
+        <h1 id="world-title">Forest Guardian<span>.</span></h1>
+        <p id="world-description">Belajar membaca risiko kebakaran dan membuat keputusan lebih aman.</p>
+      </div>
+      <nav class="world-tabs" id="world-tabs" aria-label="Pilih jenis bencana"></nav>
+      <div class="map-label"><span class="map-label-dot"></span><span id="map-label-text">DIORAMA 01 / HUTAN GAMBUT</span><span class="map-label-separator"></span><span>3D INTERAKTIF</span></div>
+      <div class="scene-status" id="scene-status" role="status" aria-live="polite"><span class="status-led"></span><span id="scene-status-text">Amati lingkungan, lalu pilih tindakan.</span></div>
+      <div class="view-controls" role="group" aria-label="Kontrol kamera">
         <button type="button" id="zoom-in" aria-label="Perbesar peta" title="Perbesar"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
         <button type="button" id="zoom-out" aria-label="Perkecil peta" title="Perkecil"><svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg></button>
-        <button type="button" id="reset-camera" aria-label="Atur ulang kamera" title="Atur ulang kamera"><svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 1-3-6M20 4v6h-6"/></svg></button>
+        <button type="button" id="reset-camera" aria-label="Reset kamera" title="Reset kamera"><svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 1-3-6M20 4v6h-6"/></svg></button>
       </div>
-      <div class="map-hint"> <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 11V7a2 2 0 0 1 4 0v4-2a2 2 0 0 1 4 0v3a2 2 0 0 1 4 0v5c0 3-2 5-5 5h-3c-2 0-3-1-4-3l-3-4c-1-2 2-4 4-2"/></svg> Seret untuk putar · Scroll / ± untuk zoom</div>
+      <p class="map-hint">DRAG TO ROTATE <span>/</span> SCROLL TO ZOOM</p>
+      <section class="case-dock" aria-label="Tantangan keputusan berbasis situasi">
+        <div class="case-track">
+          <span id="case-index">CASE 01</span><span class="case-track-line"></span><span id="case-topic">OBSERVASI</span>
+          <span class="case-track-right" id="progress-count">0/7 MISI SELESAI</span>
+        </div>
+        <div class="case-content">
+          <div class="case-intro">
+            <span class="case-kicker" id="case-kicker">LANGKAH 01 / AMATI</span>
+            <h2 id="case-title">Kenali situasinya.</h2>
+            <p id="case-detail">Baca kondisi yang sedang muncul pada peta.</p>
+            <a id="source-link" href="https://www.bmkg.go.id/" target="_blank" rel="noopener noreferrer" class="source-link">Pelajari sumber resmi <span aria-hidden="true">↗</span></a>
+          </div>
+          <div class="case-action">
+            <p class="case-question" id="case-question">Apa tindakanmu?</p>
+            <div class="choices" id="choices" role="group" aria-label="Tentukan respons"></div>
+            <div class="case-feedback" id="case-feedback" role="status" aria-live="polite" hidden></div>
+            <div class="case-footer">
+              <span class="case-safe"><svg viewBox="0 0 24 24"><path d="M12 2 4 5v7c0 5 4 8 8 10 4-2 8-5 8-10V5l-8-3Z"/><path d="m8 12 3 3 5-6"/></svg> Edukasi visual · bukan peringatan bencana langsung</span>
+              <button type="button" id="next-case" class="continue-btn" hidden>Lanjut <span aria-hidden="true">→</span></button>
+              <button type="button" id="retry-case" class="retry-btn" hidden>Coba lagi <span aria-hidden="true">↻</span></button>
+            </div>
+          </div>
+        </div>
+      </section>
     </section>
-    <section class="case-dock" aria-label="Panel misi interaktif">
-      <div class="case-track"><span id="case-index">CASE 01</span><span class="case-track-line"></span><span id="case-topic">OBSERVASI</span><span class="case-track-right"><span id="progress-count">0/3 MISI</span></span></div>
-      <div class="case-content">
-        <div class="case-intro"><span class="case-kicker" id="case-kicker">STEP 01 / OBSERVE</span><h1 id="case-title">Hotspot belum tentu api.</h1><p id="case-detail">Satelit mendeteksi anomali panas. Itu belum membuktikan ada kebakaran.</p><a id="source-link" href="https://www.bmkg.go.id/cuaca/karhutla" target="_blank" rel="noopener noreferrer" class="source-link">Referensi resmi <span aria-hidden="true">↗</span></a></div>
-        <div class="case-action"><p class="case-question" id="case-question">Apa keputusanmu?</p><div class="choices" id="choices" role="group" aria-label="Pilihan tindakan"></div><div class="case-feedback" id="case-feedback" role="status" aria-live="polite" hidden></div><div class="case-footer" id="case-footer"><span class="case-safe"><svg viewBox="0 0 24 24"><path d="M12 2 4 5v7c0 5 4 8 8 10 4-2 8-5 8-10V5l-8-3Z"/><path d="m8 12 3 3 5-6"/></svg> Simulasi edukasi · bukan panduan darurat langsung</span><button type="button" id="next-case" class="continue-btn" hidden>Lanjut kasus <span aria-hidden="true">→</span></button><button type="button" id="retry-case" class="retry-btn" hidden>Coba lagi <span aria-hidden="true">↻</span></button></div></div>
-      </div>
-    </section>
-  </div>
+  </main>
   <script type="module" src="/game.js"></script>
 </body>
 </html>
