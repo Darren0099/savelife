@@ -104,8 +104,8 @@ export class WorldRenderer{
   if(reset)this.distance=this.minDistance*1.16;
   else this.distance=Math.min(this.maxDistance,Math.max(this.distance,this.minDistance));
  }
- setScenario(world='forest',outcome='idle'){
-  this.world=world;this.caseIndex=world==='forest'?1:0;this.outcome=outcome;this.simStart=performance.now();this.updateGeometry(this.simStart);this.render();
+ setScenario(world='forest',outcome='idle',stage=0){
+  this.world=world;this.caseIndex=world==='forest'?stage:0;this.outcome=outcome;this.simStart=performance.now();this.updateGeometry(this.simStart);this.render();
  }
  updateGeometry(t){
   const geo=meshWorld(this.world,0,{caseIndex:this.caseIndex,outcome:this.outcome,elapsed:t-this.simStart});
