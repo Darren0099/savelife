@@ -1,4 +1,5 @@
-/* Original procedural low-poly world renderer. WebGL2; no downloaded 3D models. */
+/* Original procedural low-poly renderer; expanded with disaster-specific worlds. */
+import { buildDisasterWorld } from './disaster-scenes.js';
 const C={soil:'#7a5232',soilLight:'#96704a',soilDark:'#64432e',grass:'#88bd61',grass1:'#a5d57b',grass2:'#6dab59',trunk:'#82513d',pine:'#2e7652',pine2:'#3f9363',pine3:'#58a16b',leaf:'#4e9958',leaf2:'#78b866',rock:'#a6ab9e',water:'#61c4c7',water2:'#309ab5',yellow:'#f5c562',orange:'#ed7f48',white:'#f4eee1',roof:'#db8c63',blue:'#548ca3'};
 function rgb(s){const h=s.replace('#','');return [parseInt(h.slice(0,2),16)/255,parseInt(h.slice(2,4),16)/255,parseInt(h.slice(4,6),16)/255]}
 function sub(a,b){return [a[0]-b[0],a[1]-b[1],a[2]-b[2]]}function cross(a,b){return [a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]]}function norm(a){let d=Math.hypot(...a)||1;return a.map(v=>v/d)}function dot(a,b){return a[0]*b[0]+a[1]*b[1]+a[2]*b[2]}
@@ -10,6 +11,7 @@ function pine(g,x,z,scale=1,dead=false){g.cylinder(x,.62*scale,z,.09*scale,.06*s
 
 function meshWorld(id='forest',stage=0,sim={caseIndex:0,outcome:'idle',elapsed:0}){
 seed=77;
+if(id!=='forest') return buildDisasterWorld(id,sim,{Geometry});
 const g=new Geometry();
 const tiles=[];
 for(let i=-6;i<=6;i++)for(let j=-4;j<=4;j++){
@@ -80,7 +82,7 @@ return g;
 export class WorldRenderer{
  constructor(canvas){
   this.canvas=canvas;this.yaw=.80;this.pitch=.75;this.distance=19;this.drag=false;this.last=[0,0];
-  this.caseIndex=0;this.outcome='idle';this.simStart=performance.now();this.frame=0;
+  this.caseIndex=1;this.world='forest';this.outcome='idle';this.simStart=performance.now();this.frame=0;
   this.gl=canvas.getContext('webgl2',{alpha:true,antialias:true,preserveDrawingBuffer:false});
   if(!this.gl){this.software=true;this.ctx=canvas.getContext('2d')}else this.setup();
   this.bind();this.resizeObserver=new ResizeObserver(()=>{this.fitCamera(false);this.render()});this.resizeObserver.observe(canvas);
@@ -102,15 +104,15 @@ export class WorldRenderer{
   if(reset)this.distance=this.minDistance*1.16;
   else this.distance=Math.min(this.maxDistance,Math.max(this.distance,this.minDistance));
  }
- setScenario(caseIndex,outcome='idle'){
-  this.caseIndex=caseIndex;this.outcome=outcome;this.simStart=performance.now();this.updateGeometry(this.simStart);this.render();
+ setScenario(world='forest',outcome='idle',stage=0){
+  this.world=world;this.caseIndex=world==='forest'?stage:0;this.outcome=outcome;this.simStart=performance.now();this.updateGeometry(this.simStart);this.render();
  }
  updateGeometry(t){
-  const geo=meshWorld('forest',0,{caseIndex:this.caseIndex,outcome:this.outcome,elapsed:t-this.simStart});
+  const geo=meshWorld(this.world,0,{caseIndex:this.caseIndex,outcome:this.outcome,elapsed:t-this.simStart});
   if(!this.gl){this.geo=geo;return}
   let gl=this.gl;this.count=geo.p.length/3;
-  if(this.buffers)this.buffers.forEach(b=>gl.deleteBuffer(b));
-  this.buffers=[geo.p,geo.n,geo.c].map(arr=>{const b=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(arr),gl.DYNAMIC_DRAW);return b});
+  if(!this.buffers)this.buffers=[gl.createBuffer(),gl.createBuffer(),gl.createBuffer()];
+  [geo.p,geo.n,geo.c].forEach((arr,i)=>{gl.bindBuffer(gl.ARRAY_BUFFER,this.buffers[i]);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(arr),gl.DYNAMIC_DRAW)});
  }
  resize(){const r=this.canvas.getBoundingClientRect(),dpr=Math.min(window.devicePixelRatio||1,1.8),w=Math.max(2,Math.round(r.width*dpr)),h=Math.max(2,Math.round(r.height*dpr));if(this.canvas.width!==w||this.canvas.height!==h){this.canvas.width=w;this.canvas.height=h;if(this.gl)this.gl.viewport(0,0,w,h)}}
  matrix(){const aspect=this.canvas.width/Math.max(1,this.canvas.height);const y=Math.sin(this.pitch)*this.distance,x=Math.cos(this.pitch)*this.distance*Math.sin(this.yaw),z=Math.cos(this.pitch)*this.distance*Math.cos(this.yaw);return mul(persp(Math.PI/3.6,aspect,.1,100),viewMat([x,y,z],[0,.2,0]))}

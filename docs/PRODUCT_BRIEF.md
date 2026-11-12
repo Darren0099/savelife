@@ -1,45 +1,33 @@
-# SAVE LIFE — Green Generation: Product Brief
+# SaveLife — Multi-Disaster 3D Learning / Product Brief
 
-## Purpose
-An Astro-based educational prototype for Indonesian students (particularly ages 13–18) to explore environmental risks through short lessons, branching decisions and reusable 3D environments.
+## Product intent
+A full-screen interactive learning experience that uses five stylized low-poly disaster environments and short, contextual decisions instead of lengthy popups. Primary audience: Indonesian secondary school learners, educators and community groups.
 
-**Important:** This is a civic/environmental education prototype, not a government application or an emergency warning platform.
+## Current scope
 
-## Problem hypothesis
-Environmental risks such as forest and peatland fires, floods and air pollution affect communities; students may benefit from interactive, local examples and simulated decisions rather than static articles alone. This hypothesis requires user validation.
+- **Forest Guardian:** three existing missions, with hotspot, fire, haze and responder effects.
+- **Coastal Escape:** coastal settlement, animated tsunami front, visible illustrative route to higher ground.
+- **Rising Waters:** riverside town, animated rising water, flooded homes and rescue boat.
+- **Ground Motion:** shaking buildings, road cracks, rubble and a post-shaking assembly area.
+- **Slope Alert:** terraced hillside, soil fracture, moving debris and safe-distance route.
 
-## Pilot audience and location
-- Students in middle and high schools in South Sumatra, Indonesia.
-- Secondary users: educators, school clubs and youth communities.
-- First learning module: Forest Guardian (karhutla and haze).
+## Interaction
+User selects a world, drags to orbit, answers a small decision card, observes the changed 3D environment, and receives concise evidence-linked feedback. XP/completions are saved locally without registration.
 
-## Worlds
-1. **Forest Guardian** — hotspot limitations, peatland protection, haze safety.
-2. **Water Defender** — flood awareness and river protection.
-3. **Waste Warrior** — waste reduction and sorting.
-4. **Climate Hero** — climate literacy and energy.
-5. **Earth Restorer** — habitats and biodiversity.
+## Visual direction
+References supplied by the user: Aerial-style pastel low-poly isometric islands, architectural miniature dioramas, a green sustainable city, and a connected curved-path landscape. Reference composition and art direction only; 3D geometry is original procedural code.
 
-## Prototype learning cycle
-Read a short concept → choose an action in a simulated scenario → inspect feedback → earn learning XP → reflect. XP and completed missions are stored in browser localStorage.
+## Technical constraints
+Astro static output on Vercel; no backend needed for this educational prototype. Shared WebGL2 renderer and Canvas2D fallback; device pixel ratio limited to avoid excessive GPU load; no downloaded 3D models required. Browser testing remains necessary across low-powered mobile GPUs.
 
-## MVP acceptance checks
-- Interactive 3D low-poly forest works on supported desktop and mobile browsers, with graceful Canvas fallback.
-- All five worlds render; Forest Guardian includes three core missions.
-- A learner can complete a mission and receive a factual explanation.
-- Progress survives a page reload in the same browser.
-- Each safety-related lesson cites a reliable published source.
-- No account, NIK, personal location, diagnosis or sensitive learner data is collected.
+## Non-goals and safety
+No forecasting, terrain-accurate route planning, real hazard location, alerting, or operational safety instructions. Any simulated evacuation markers, shaking and water levels are illustrative only. Users must follow authorized agencies in a real disaster.
 
-## Evaluation before expansion
-Recruit ~8–12 students and 3–5 teachers for exploratory usability testing, with appropriate consent for minors. Compare understanding before and after lessons; track scenario reasoning rather than treating XP as a learning outcome.
-
-## Content and safety caveats
-- World-health scores are simulated values only.
-- Satellite hotspots are not confirmed fires.
-- Never suggest approaching or fighting fires to complete a game mission.
-- The website does not provide real-time hazard advice. Follow local authorities in an actual emergency.
-- Safety scripts should be reviewed by educators and relevant professionals before classroom use.
-
-## Future iterations
-Content management, teacher dashboard, accessibility review against WCAG 2.2 AA, classroom management, localized curriculum and responsible aggregation of public environmental datasets.
+## Acceptance checklist
+- All five environments render without console errors.
+- Safe and unsafe answers produce different visible consequences.
+- Mission progress persists after reload.
+- Keyboard-accessible choices and camera buttons, readable in-app source links.
+- Mobile HUD leaves the world navigable, with no oversized learning popup.
+- No external API keys or personal-data collection.
+- Build succeeds on Vercel and preview checked before merging.
