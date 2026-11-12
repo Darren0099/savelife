@@ -82,6 +82,7 @@ return g;
 export class WorldRenderer{
  constructor(canvas){
   this.canvas=canvas;this.yaw=.80;this.pitch=.75;this.distance=19;this.drag=false;this.last=[0,0];
+  this.focusOffset=-.40;this.focusTarget=-.40;this.zoomOffset=1;this.zoomTarget=1;this.dockExpanded=false;
   this.caseIndex=1;this.world='forest';this.outcome='idle';this.simStart=performance.now();this.frame=0;
   this.gl=canvas.getContext('webgl2',{alpha:true,antialias:true,preserveDrawingBuffer:false});
   if(!this.gl){this.software=true;this.ctx=canvas.getContext('2d')}else this.setup();
@@ -96,13 +97,21 @@ export class WorldRenderer{
  this.program=p;this.attr=[gl.getAttribLocation(p,'aPos'),gl.getAttribLocation(p,'aNormal'),gl.getAttribLocation(p,'aColor')];this.uVP=gl.getUniformLocation(p,'uVP');gl.enable(gl.DEPTH_TEST);gl.disable(gl.CULL_FACE);
  }
  fitCamera(reset){
-  const r=this.canvas.getBoundingClientRect();const aspect=Math.max(.25,r.width/Math.max(1,r.height));
-  // Bound view distance by scene radius and BOTH vertical and horizontal field of view.
-  // Zoom-in stops at this safe fitting distance; the whole island stays visible at every rotation.
-  const fov=Math.PI/3.6, hfov=Math.atan(Math.tan(fov/2)*aspect);
-  this.minDistance=Math.max(11.8,6.35/Math.sin(hfov));this.maxDistance=this.minDistance*2.2;
-  if(reset)this.distance=this.minDistance*1.16;
-  else this.distance=Math.min(this.maxDistance,Math.max(this.distance,this.minDistance));
+  const r=this.canvas.getBoundingClientRect();
+  const aspect=Math.max(.25,r.width/Math.max(1,r.height));
+  const fov=Math.PI/3.6,hfov=Math.atan(Math.tan(fov/2)*aspect);
+  // Zoom fits the entire diorama even at sideways rotations. The new
+  // compact HUD means the default camera can frame it much closer.
+  const zoomRatio=this.minDistance?this.distance/this.minDistance:1.045;
+  this.minDistance=Math.max(10.2,5.65/Math.sin(hfov),3.9/Math.sin(fov/2));
+  this.maxDistance=this.minDistance*2.4;
+  this.distance=Math.min(this.maxDistance,Math.max(this.minDistance,this.minDistance*(reset?1.045:zoomRatio)));
+ }
+ setDockExpanded(expanded){
+  this.dockExpanded=!!expanded;
+  // Smoothly move and fit the diorama above the taller drawer.
+  this.focusTarget=expanded?-1.3:-.40;
+  this.zoomTarget=expanded?1.17:1;
  }
  setScenario(world='forest',outcome='idle',stage=0){
   this.world=world;this.caseIndex=world==='forest'?stage:0;this.outcome=outcome;this.simStart=performance.now();this.updateGeometry(this.simStart);this.render();
@@ -115,16 +124,29 @@ export class WorldRenderer{
   [geo.p,geo.n,geo.c].forEach((arr,i)=>{gl.bindBuffer(gl.ARRAY_BUFFER,this.buffers[i]);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(arr),gl.DYNAMIC_DRAW)});
  }
  resize(){const r=this.canvas.getBoundingClientRect(),dpr=Math.min(window.devicePixelRatio||1,1.8),w=Math.max(2,Math.round(r.width*dpr)),h=Math.max(2,Math.round(r.height*dpr));if(this.canvas.width!==w||this.canvas.height!==h){this.canvas.width=w;this.canvas.height=h;if(this.gl)this.gl.viewport(0,0,w,h)}}
- matrix(){const aspect=this.canvas.width/Math.max(1,this.canvas.height);const y=Math.sin(this.pitch)*this.distance,x=Math.cos(this.pitch)*this.distance*Math.sin(this.yaw),z=Math.cos(this.pitch)*this.distance*Math.cos(this.yaw);return mul(persp(Math.PI/3.6,aspect,.1,100),viewMat([x,y,z],[0,.2,0]))}
+ matrix(){
+  const aspect=this.canvas.width/Math.max(1,this.canvas.height),distance=this.distance*this.zoomOffset;
+  const shift=this.focusOffset;
+  const y=Math.sin(this.pitch)*distance,x=Math.cos(this.pitch)*distance*Math.sin(this.yaw),z=Math.cos(this.pitch)*distance*Math.cos(this.yaw);
+  return mul(persp(Math.PI/3.6,aspect,.1,100),viewMat([x,y+shift,z],[0,.2+shift,0]));
+ }
  render(){this.resize();if(!this.gl){this.renderSoftware();return}const gl=this.gl;gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);if(!this.buffers)return;gl.useProgram(this.program);gl.uniformMatrix4fv(this.uVP,false,this.matrix());this.buffers.forEach((b,i)=>{gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.enableVertexAttribArray(this.attr[i]);gl.vertexAttribPointer(this.attr[i],3,gl.FLOAT,false,0,0)});gl.drawArrays(gl.TRIANGLES,0,this.count)}
  renderSoftware(){if(!this.geo||!this.ctx)return;const w=this.canvas.width,h=this.canvas.height,ctx=this.ctx;ctx.clearRect(0,0,w,h);const vp=this.matrix(),p=this.geo.p,n=this.geo.n,c=this.geo.c,polys=[];
   const project=i=>{const X=p[i],Y=p[i+1],Z=p[i+2],cx=vp[0]*X+vp[4]*Y+vp[8]*Z+vp[12],cy=vp[1]*X+vp[5]*Y+vp[9]*Z+vp[13],cz=vp[2]*X+vp[6]*Y+vp[10]*Z+vp[14],cw=vp[3]*X+vp[7]*Y+vp[11]*Z+vp[15];if(cw<=.1)return null;return [(cx/cw*.5+.5)*w,(-cy/cw*.5+.5)*h,cz/cw]};
   for(let i=0;i<p.length;i+=9){const v1=project(i),v2=project(i+3),v3=project(i+6);if(!v1||!v2||!v3)continue;const l=Math.max(.54,Math.min(1.03,.64+.37*(n[i]*.5+n[i+1]*.85+n[i+2]*.7))),col=[0,1,2].map(j=>Math.min(255,Math.round(c[i+j]*255*l)));polys.push([(v1[2]+v2[2]+v3[2])/3,v1,v2,v3,`rgb(${col.join(',')})`]);}
   polys.sort((a,b)=>b[0]-a[0]);for(const it of polys){ctx.fillStyle=it[4];ctx.beginPath();ctx.moveTo(it[1][0],it[1][1]);ctx.lineTo(it[2][0],it[2][1]);ctx.lineTo(it[3][0],it[3][1]);ctx.closePath();ctx.fill()}
  }
- tick(t){if(!this.lastFrame||t-this.lastFrame>(this.software?230:75)){this.lastFrame=t;this.updateGeometry(t);this.render()}requestAnimationFrame(this.tick)}
+ tick(t){
+  if(!this.lastFrame||t-this.lastFrame>(this.software?230:75)){
+   this.lastFrame=t;
+   this.focusOffset+=(this.focusTarget-this.focusOffset)*.30;
+   this.zoomOffset+=(this.zoomTarget-this.zoomOffset)*.30;
+   this.updateGeometry(t);this.render();
+  }
+  requestAnimationFrame(this.tick);
+ }
  bind(){const c=this.canvas;c.addEventListener('pointerdown',e=>{if(e.button!==0)return;this.drag=true;this.last=[e.clientX,e.clientY];c.setPointerCapture(e.pointerId)});c.addEventListener('pointermove',e=>{if(!this.drag)return;this.yaw+=(e.clientX-this.last[0])*.008;this.pitch=Math.min(1.25,Math.max(.27,this.pitch+(e.clientY-this.last[1])*.006));this.last=[e.clientX,e.clientY];this.render()});
  c.addEventListener('pointerup',()=>{this.drag=false});c.addEventListener('pointercancel',()=>{this.drag=false});c.addEventListener('wheel',e=>{e.preventDefault();this.zoom(e.deltaY>0?1:-1)},{passive:false});c.addEventListener('keydown',e=>{if(e.key==='+'||e.key==='='){this.zoom(-1);e.preventDefault()}else if(e.key==='-'){this.zoom(1);e.preventDefault()}else if(e.key.startsWith('Arrow')){this.yaw+=(e.key==='ArrowLeft'?-1:e.key==='ArrowRight'?1:0)*.1;this.pitch=Math.min(1.25,Math.max(.27,this.pitch+(e.key==='ArrowDown'?.1:e.key==='ArrowUp'?-.1:0)));this.render();e.preventDefault()}})}
- zoom(direction){this.fitCamera(false);this.distance=Math.min(this.maxDistance,Math.max(this.minDistance,this.distance+direction*this.minDistance*.10));this.render()}
+ zoom(direction){this.fitCamera(false);this.distance=Math.min(this.maxDistance,Math.max(this.minDistance,this.distance+direction*this.minDistance*.09));this.render()}
  reset(){this.yaw=.80;this.pitch=.75;this.fitCamera(true);this.render()}
 }
